@@ -1,0 +1,9 @@
+﻿metric,value
+dataset_rows,15411.0
+modeling_rows,15411.0
+training_rows,12328.0
+test_rows,3083.0
+random_state,42.0
+test_size,0.2
+training_global_median,560000.0
+baseline_MAE,113896.89425883879

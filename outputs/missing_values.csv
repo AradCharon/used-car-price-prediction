@@ -1,0 +1,14 @@
+﻿,missing_count,missing_percent,unique_values,dtype
+car_name,0,0.0,121,object
+brand,0,0.0,32,object
+model,0,0.0,120,object
+vehicle_age,0,0.0,24,int64
+km_driven,0,0.0,3688,int64
+seller_type,0,0.0,3,object
+fuel_type,0,0.0,5,object
+transmission_type,0,0.0,2,object
+mileage,0,0.0,411,float64
+engine,0,0.0,110,int64
+max_power,0,0.0,342,float64
+seats,0,0.0,8,int64
+selling_price,0,0.0,1086,int64
