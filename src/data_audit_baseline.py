@@ -1,12 +1,13 @@
-
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import train_test_split
 
-DATA_PATH = Path("cardekho_dataset.csv")
-OUTPUT_DIR = Path("outputs")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_PATH = PROJECT_ROOT / "data" / "cardekho_dataset.csv"
+OUTPUT_DIR = PROJECT_ROOT / "outputs"
 TARGET = "selling_price"
 RANDOM_STATE = 42
 TEST_SIZE = 0.20
@@ -14,185 +15,218 @@ TEST_SIZE = 0.20
 REQUIRED_COLUMNS = [
     "brand", "model", "vehicle_age", "km_driven",
     "seller_type", "fuel_type", "transmission_type",
-    "mileage", "engine", "max_power", "seats", TARGET
+    "mileage", "engine", "max_power", "seats", TARGET,
+]
+
+NUMERIC_COLUMNS = [
+    "vehicle_age", "km_driven", "mileage",
+    "engine", "max_power", "seats", TARGET,
 ]
 
 
-def main():
+def print_section(title):
+    print("\n" + "=" * 65)
+    print(title)
+    print("=" * 65)
+
+
+def ensure_output_dir():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(
-            f"Dataset not found: {DATA_PATH.resolve()}"
-        )
 
-    df = pd.read_csv(DATA_PATH)
+def load_dataset(path):
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset not found: {path.resolve()}")
+    df = pd.read_csv(path)
+    if df.empty:
+        raise ValueError("Dataset is empty.")
+    return df
 
+
+def drop_unnamed_columns(df):
     unnamed = [
-        col for col in df.columns
-        if str(col).lower().startswith("unnamed:")
+        c for c in df.columns
+        if str(c).lower().startswith("unnamed:")
     ]
-    df = df.drop(columns=unnamed)
+    if unnamed:
+        df = df.drop(columns=unnamed)
+        print(f"[audit] dropped {len(unnamed)} unnamed index column(s): {unnamed}")
+    return df
 
-    print("=" * 60)
-    print("DATASET OVERVIEW")
-    print("=" * 60)
-    print("Shape:", df.shape)
-    print("\nColumns:")
-    print(df.columns.tolist())
-    print("\nData types:")
-    print(df.dtypes)
-    print("\nFirst 5 rows:")
-    print(df.head().to_string(index=False))
 
-    missing_report = pd.DataFrame({
+def validate_required_columns(df, required):
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+
+def coerce_numeric(df, columns):
+    for col in columns:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
+def missing_value_report(df):
+    report = pd.DataFrame({
         "missing_count": df.isna().sum(),
         "missing_percent": (df.isna().mean() * 100).round(2),
         "unique_values": df.nunique(dropna=True),
-        "dtype": df.dtypes.astype(str)
+        "dtype": df.dtypes.astype(str),
     })
+    report.to_csv(OUTPUT_DIR / "missing_values.csv", encoding="utf-8-sig")
+    return report
 
-    missing_report.to_csv(
-        OUTPUT_DIR / "missing_values.csv",
-        encoding="utf-8-sig"
+
+def duplicate_report(df):
+    n = int(df.duplicated().sum())
+    df[df.duplicated(keep=False)].to_csv(
+        OUTPUT_DIR / "duplicate_rows.csv",
+        index=False,
+        encoding="utf-8-sig",
     )
+    return n
 
-    print("\nMissing values:")
-    print(missing_report.to_string())
 
-    duplicate_count = int(df.duplicated().sum())
-    print("\nExact duplicate rows:", duplicate_count)
-
-    numeric_columns = [
-        "vehicle_age", "km_driven", "mileage",
-        "engine", "max_power", "seats", TARGET
-    ]
-
-    for col in numeric_columns:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    numeric_df = df.select_dtypes(include="number")
-    numeric_summary = numeric_df.describe().T
-
-    numeric_summary.to_csv(
+def numeric_summary(df):
+    summary = df.select_dtypes(include="number").describe().T
+    summary.to_csv(
         OUTPUT_DIR / "numeric_summary.csv",
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
+    return summary
 
-    print("\nNumeric summary:")
-    print(numeric_summary.to_string())
 
-    if TARGET in df.columns:
-        price = df[TARGET].dropna()
+def iqr_outlier_report(df, columns):
+    rows = []
+    for col in columns:
+        if col not in df.columns:
+            continue
+        s = df[col].dropna()
+        if s.empty:
+            continue
+        q1, q3 = s.quantile(0.25), s.quantile(0.75)
+        iqr = q3 - q1
+        lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+        mask = (s < lower) | (s > upper)
+        rows.append({
+            "feature": col,
+            "q1": q1,
+            "q3": q3,
+            "iqr": iqr,
+            "lower_bound": lower,
+            "upper_bound": upper,
+            "outlier_count": int(mask.sum()),
+            "outlier_percent": round(mask.mean() * 100, 2),
+        })
+    report = pd.DataFrame(rows)
+    report.to_csv(
+        OUTPUT_DIR / "iqr_outlier_report.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    return report
 
-        if not price.empty:
-            q1 = price.quantile(0.25)
-            q3 = price.quantile(0.75)
-            iqr = q3 - q1
-            lower = q1 - 1.5 * iqr
-            upper = q3 + 1.5 * iqr
-            outliers = ((price < lower) | (price > upper)).sum()
 
-            print("\nPrice outlier screening:")
-            print(f"Q1: {q1:,.2f}")
-            print(f"Q3: {q3:,.2f}")
-            print(f"Lower bound: {lower:,.2f}")
-            print(f"Upper bound: {upper:,.2f}")
-            print(f"Flagged rows: {outliers:,}")
+def validity_report(df):
+    rules = {
+        "negative_vehicle_age": df["vehicle_age"] < 0,
+        "negative_km_driven": df["km_driven"] < 0,
+        "nonpositive_mileage": df["mileage"] <= 0,
+        "nonpositive_engine": df["engine"] <= 0,
+        "nonpositive_max_power": df["max_power"] <= 0,
+        "seats_outside_2_10": ~df["seats"].between(2, 10),
+        "nonpositive_selling_price": df[TARGET] <= 0,
+    }
+    report = pd.DataFrame([
+        {
+            "rule": name,
+            "flagged_count": int(mask.sum()),
+            "flagged_percent": round(mask.mean() * 100, 2),
+        }
+        for name, mask in rules.items()
+    ])
+    report.to_csv(
+        OUTPUT_DIR / "validity_report.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    return report
 
-    missing_columns = [
-        col for col in REQUIRED_COLUMNS
-        if col not in df.columns
-    ]
 
-    if missing_columns:
-        raise ValueError(
-            f"Missing required columns: {missing_columns}"
-        )
-
-    model_df = df[
-        ["brand", "model", "vehicle_age", TARGET]
-    ].copy()
-
-    initial_rows = len(model_df)
+def prepare_modeling_frame(df):
+    model_df = df[["brand", "model", "vehicle_age", TARGET]].copy()
+    initial = len(model_df)
 
     model_df = model_df.dropna(
         subset=["brand", "model", "vehicle_age", TARGET]
     )
-
     model_df = model_df[
         (model_df[TARGET] > 0)
         & (model_df["vehicle_age"] >= 0)
         & (model_df["brand"].astype(str).str.strip() != "")
         & (model_df["model"].astype(str).str.strip() != "")
-    ].copy()
+    ].reset_index(drop=True)
 
-    print("\n" + "=" * 60)
-    print("MODELING DATA")
-    print("=" * 60)
-    print("Rows before filtering:", initial_rows)
-    print("Rows after filtering:", len(model_df))
-    print("Rows removed:", initial_rows - len(model_df))
+    print(f"[modeling] rows before filtering: {initial}")
+    print(f"[modeling] rows after filtering : {len(model_df)}")
+    print(f"[modeling] rows removed         : {initial - len(model_df)}")
+    return model_df
 
-    if len(model_df) < 5:
-        raise ValueError("Too few valid rows for evaluation.")
 
+def train_test_split_frame(model_df):
     train, test = train_test_split(
         model_df,
         test_size=TEST_SIZE,
-        random_state=RANDOM_STATE
+        random_state=RANDOM_STATE,
     )
+    return train.reset_index(drop=True), test.reset_index(drop=True)
 
-    median_brand_model_age = train.groupby(
-        ["brand", "model", "vehicle_age"]
-    )[TARGET].median()
 
-    median_brand_model = train.groupby(
-        ["brand", "model"]
-    )[TARGET].median()
+def build_baseline_lookup(train):
+    lookup = {
+        "brand_model_age": train.groupby(
+            ["brand", "model", "vehicle_age"]
+        )[TARGET].median(),
+        "brand_model": train.groupby(
+            ["brand", "model"]
+        )[TARGET].median(),
+        "brand": train.groupby("brand")[TARGET].median(),
+        "global": train[TARGET].median(),
+    }
+    return lookup
 
-    median_brand = train.groupby("brand")[TARGET].median()
-    global_median = train[TARGET].median()
 
-    def predict_baseline(row):
-        key3 = (
-            row["brand"],
-            row["model"],
-            row["vehicle_age"]
-        )
-        key2 = (row["brand"], row["model"])
-        key1 = row["brand"]
+def predict_baseline(row, lookup):
+    key3 = (row["brand"], row["model"], row["vehicle_age"])
+    key2 = (row["brand"], row["model"])
+    key1 = row["brand"]
 
-        if key3 in median_brand_model_age.index:
-            return median_brand_model_age.loc[key3]
+    if key3 in lookup["brand_model_age"].index:
+        return lookup["brand_model_age"].loc[key3]
+    if key2 in lookup["brand_model"].index:
+        return lookup["brand_model"].loc[key2]
+    if key1 in lookup["brand"].index:
+        return lookup["brand"].loc[key1]
+    return lookup["global"]
 
-        if key2 in median_brand_model.index:
-            return median_brand_model.loc[key2]
 
-        if key1 in median_brand.index:
-            return median_brand.loc[key1]
-
-        return global_median
-
+def evaluate_baseline(train, test):
+    lookup = build_baseline_lookup(train)
     y_true = test[TARGET]
-    y_pred = test.apply(predict_baseline, axis=1)
-    mae = mean_absolute_error(y_true, y_pred)
+    y_pred = test.apply(lambda r: predict_baseline(r, lookup), axis=1)
 
-    results = test[
-        ["brand", "model", "vehicle_age", TARGET]
-    ].copy()
-
+    results = test[["brand", "model", "vehicle_age", TARGET]].copy()
     results["predicted_price"] = y_pred
-    results["absolute_error"] = (
-        results[TARGET] - results["predicted_price"]
-    ).abs()
-
+    results["absolute_error"] = (results[TARGET] - y_pred).abs()
     results.to_csv(
         OUTPUT_DIR / "baseline_test_predictions.csv",
         index=False,
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
+
+    mae = mean_absolute_error(y_true, y_pred)
+    negative_preds = int((y_pred < 0).sum())
 
     metrics = pd.DataFrame({
         "metric": [
@@ -203,38 +237,84 @@ def main():
             "random_state",
             "test_size",
             "training_global_median",
-            "baseline_MAE"
+            "baseline_mae",
+            "baseline_negative_predictions",
         ],
         "value": [
-            len(df),
-            len(model_df),
+            None,
+            len(train) + len(test),
             len(train),
             len(test),
             RANDOM_STATE,
             TEST_SIZE,
-            global_median,
-            mae
-        ]
+            lookup["global"],
+            mae,
+            negative_preds,
+        ],
     })
+    return results, metrics, mae, lookup["global"], negative_preds
 
+
+def main():
+    ensure_output_dir()
+    print_section("LOAD AND VALIDATE")
+    df = load_dataset(DATA_PATH)
+    df = drop_unnamed_columns(df)
+    validate_required_columns(df, REQUIRED_COLUMNS)
+    df = coerce_numeric(df, NUMERIC_COLUMNS)
+
+    print("\nShape:", df.shape)
+    print("\nColumns:", df.columns.tolist())
+    print("\nData types:")
+    print(df.dtypes)
+
+    print_section("MISSING VALUES")
+    missing = missing_value_report(df)
+    print(missing.to_string())
+
+    print_section("DUPLICATES")
+    dup_count = duplicate_report(df)
+    print(f"Exact duplicate rows: {dup_count}")
+
+    print_section("NUMERIC SUMMARY")
+    print(numeric_summary(df).to_string())
+
+    print_section("IQR OUTLIER REPORT")
+    outliers = iqr_outlier_report(df, NUMERIC_COLUMNS)
+    print(outliers.to_string(index=False))
+
+    print_section("VALIDITY REPORT")
+    validity = validity_report(df)
+    print(validity.to_string(index=False))
+
+    print_section("MODELING FRAME")
+    model_df = prepare_modeling_frame(df)
+
+    print_section("TRAIN / TEST SPLIT")
+    train, test = train_test_split_frame(model_df)
+
+    print_section("BASELINE EVALUATION")
+    results, metrics, mae, global_median, negative_preds = evaluate_baseline(
+        train, test
+    )
+    metrics.loc[metrics["metric"] == "dataset_rows", "value"] = len(df)
     metrics.to_csv(
         OUTPUT_DIR / "baseline_metrics.csv",
         index=False,
-        encoding="utf-8-sig"
+        encoding="utf-8-sig",
     )
 
-    print("\n" + "=" * 60)
-    print("BASELINE RESULTS")
-    print("=" * 60)
     print(f"Training rows: {len(train):,}")
     print(f"Test rows: {len(test):,}")
     print(f"Training global median: {global_median:,.2f}")
     print(f"Baseline MAE: {mae:,.2f}")
+    print(f"Negative baseline predictions: {negative_preds}")
 
     print("\nSample predictions:")
     print(results.head(10).to_string(index=False))
 
-    print("\nOutput directory:", OUTPUT_DIR.resolve())
+    print_section("OUTPUT DIRECTORY")
+    print(OUTPUT_DIR.resolve())
 
 
 if __name__ == "__main__":

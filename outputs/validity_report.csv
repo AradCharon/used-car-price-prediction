@@ -1,0 +1,8 @@
+﻿rule,flagged_count,flagged_percent
+negative_vehicle_age,0,0.0
+negative_km_driven,0,0.0
+nonpositive_mileage,0,0.0
+nonpositive_engine,0,0.0
+nonpositive_max_power,0,0.0
+seats_outside_2_10,2,0.01
+nonpositive_selling_price,0,0.0
