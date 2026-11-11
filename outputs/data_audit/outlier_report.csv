@@ -1,0 +1,5 @@
+﻿column,method,q1,q3,iqr,lower_bound,upper_bound,outlier_count,outlier_pct_of_non_missing,min_outlier,max_outlier
+year,IQR (1.5 x IQR),1397.0,2017.0,620.0,467.0,2947.0,0,0.0,,
+mileage_km,IQR (1.5 x IQR),0.0,155000.0,155000.0,-232500.0,387500.0,1350,3.415,388000.0,4000000.0
+price,IQR (1.5 x IQR),650000000.0,4850000000.0,4200000000.0,-5650000000.0,11150000000.0,3429,8.675,11190000000.0,8945500000000.0
+engine_liter,IQR (1.5 x IQR),1.5,2.0,0.5,0.75,2.75,1457,4.295,2.8,2999.0

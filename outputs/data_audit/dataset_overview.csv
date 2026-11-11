@@ -1,0 +1,12 @@
+﻿metric,value
+dataset_name,bama_ml_dataset.csv
+rows,39526
+columns,13
+memory_usage_mb,28.911
+exact_duplicate_rows,0
+duplicate_links,0
+missing_cells,5603
+missing_cell_pct,1.09
+target_column,price
+provided_clean_dataset_rows,27562
+provided_clean_dataset_columns,13

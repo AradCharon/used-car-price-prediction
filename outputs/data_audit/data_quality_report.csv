@@ -1,0 +1,11 @@
+﻿quality_dimension,value,unit,assessment
+Completeness,98.91,percent,One numeric field has missing values
+Exact duplicate rows,0,records,No exact duplicate rows detected
+Unique links,39526,links,Check duplicate listing identifiers
+Missing engine_liter,5603,records,Missing values in engine displacement
+Zero price,7914,records,All zero prices appear in negotiable listings
+Year above 1405,13587,records,Potential mixed calendar representation
+Engine > 8 liters,209,records,Extreme values need validation
+"Mileage > 1,000,000 km",5,records,Extreme mileage values need validation
+Temporal coverage,Unavailable,status,No listing date field
+Geographical coverage,1441,distinct location strings,Location text exists but is not normalized/geocoded
