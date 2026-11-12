@@ -1,0 +1,6 @@
+﻿column,invalid_rule,invalid_count,examples
+Price,non-positive price,8658,0.0; 0.0; 0.0; 0.0; 0.0
+Price,non-numeric / unparsable price,0,
+Mileage,negative mileage,0,
+Mileage,unparsable mileage text,0,
+Model_Year,outside plausible range (1300–2026 or 1900–2026),0,
