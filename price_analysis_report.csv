@@ -1,0 +1,13 @@
+﻿metric,value
+count,393827.0
+missing_count,13096.0
+mean,582514934.3414062
+median,320000000.0
+std,1153477365.145433
+min,0.0
+q1,165000000.0
+q3,590000000.0
+max,50000000000.0
+skewness,10.436967003058946
+positive_count,385169.0
+zero_or_negative_count,8658.0
