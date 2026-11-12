@@ -1,0 +1,244 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Divar Cars Data Quality Report</title>
+<style>body{font-family:Arial,sans-serif;margin:32px;color:#222}h1,h2{color:#23395d}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#eef2f7}.metric{display:inline-block;padding:12px;margin:8px;background:#f3f5f8;border-radius:6px}</style>
+<h1>Divar Cars — Data Quality Report</h1><p>Dataset source: Kaggle arianghasemi/divar-cars. Audited file: final2024.csv.</p>
+<div class="metric"><b>Rows:</b> 406,923</div><div class="metric"><b>Columns:</b> 19</div><div class="metric"><b>Exact duplicates:</b> 74</div><div class="metric"><b>Missing cell rate:</b> 23.25%</div>
+<h2>Schema and missing values</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>column</th>
+      <th>dtype</th>
+      <th>null_count</th>
+      <th>null_percent</th>
+      <th>unique_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>City</td>
+      <td>object</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <td>Model_Year</td>
+      <td>object</td>
+      <td>3630</td>
+      <td>0.892061</td>
+      <td>77</td>
+    </tr>
+    <tr>
+      <td>Color</td>
+      <td>object</td>
+      <td>28083</td>
+      <td>6.901306</td>
+      <td>44</td>
+    </tr>
+    <tr>
+      <td>Mileage</td>
+      <td>object</td>
+      <td>3630</td>
+      <td>0.892061</td>
+      <td>14398</td>
+    </tr>
+    <tr>
+      <td>Brand</td>
+      <td>object</td>
+      <td>28080</td>
+      <td>6.900568</td>
+      <td>2176</td>
+    </tr>
+    <tr>
+      <td>Body_Condition</td>
+      <td>object</td>
+      <td>29592</td>
+      <td>7.272137</td>
+      <td>60</td>
+    </tr>
+    <tr>
+      <td>Price</td>
+      <td>float64</td>
+      <td>13096</td>
+      <td>3.218299</td>
+      <td>4383</td>
+    </tr>
+    <tr>
+      <td>Engine_Condition</td>
+      <td>object</td>
+      <td>60647</td>
+      <td>14.903802</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>Chassis_Condition</td>
+      <td>object</td>
+      <td>90513</td>
+      <td>22.243275</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>Third_party_insurance</td>
+      <td>object</td>
+      <td>77712</td>
+      <td>19.097471</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>Gearbox</td>
+      <td>object</td>
+      <td>72942</td>
+      <td>17.925259</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>Selling_Method</td>
+      <td>object</td>
+      <td>354286</td>
+      <td>87.064629</td>
+      <td>134</td>
+    </tr>
+    <tr>
+      <td>Time</td>
+      <td>object</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>376</td>
+    </tr>
+    <tr>
+      <td>Location</td>
+      <td>object</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>2136</td>
+    </tr>
+    <tr>
+      <td>id</td>
+      <td>object</td>
+      <td>56475</td>
+      <td>13.878547</td>
+      <td>349653</td>
+    </tr>
+    <tr>
+      <td>title</td>
+      <td>object</td>
+      <td>56402</td>
+      <td>13.860608</td>
+      <td>103684</td>
+    </tr>
+    <tr>
+      <td>Fuel_Type</td>
+      <td>object</td>
+      <td>181075</td>
+      <td>44.498591</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Front_Chassis</td>
+      <td>object</td>
+      <td>369982</td>
+      <td>90.921870</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>Rear_Chassis</td>
+      <td>object</td>
+      <td>371693</td>
+      <td>91.342342</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Price summary</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>metric</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>count</td>
+      <td>3.938270e+05</td>
+    </tr>
+    <tr>
+      <td>missing_count</td>
+      <td>1.309600e+04</td>
+    </tr>
+    <tr>
+      <td>mean</td>
+      <td>5.825149e+08</td>
+    </tr>
+    <tr>
+      <td>median</td>
+      <td>3.200000e+08</td>
+    </tr>
+    <tr>
+      <td>std</td>
+      <td>1.153477e+09</td>
+    </tr>
+    <tr>
+      <td>min</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <td>q1</td>
+      <td>1.650000e+08</td>
+    </tr>
+    <tr>
+      <td>q3</td>
+      <td>5.900000e+08</td>
+    </tr>
+    <tr>
+      <td>max</td>
+      <td>5.000000e+10</td>
+    </tr>
+    <tr>
+      <td>skewness</td>
+      <td>1.043697e+01</td>
+    </tr>
+    <tr>
+      <td>positive_count</td>
+      <td>3.851690e+05</td>
+    </tr>
+    <tr>
+      <td>zero_or_negative_count</td>
+      <td>8.658000e+03</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Temporal coverage</h2><pre>{
+  &quot;valid_time_count&quot;: 406923,
+  &quot;min_date&quot;: &quot;2020-07-18 00:00:00&quot;,
+  &quot;max_date&quot;: &quot;2024-06-24 00:00:00&quot;,
+  &quot;distinct_dates&quot;: 376
+}</pre>
+<h2>Geographical coverage</h2><pre>{
+  &quot;city_count&quot;: 334,
+  &quot;top_cities&quot;: {
+    &quot;tehran&quot;: 115766,
+    &quot;mashhad&quot;: 37278,
+    &quot;isfahan&quot;: 29241,
+    &quot;shiraz&quot;: 22355,
+    &quot;karaj&quot;: 16348,
+    &quot;tabriz&quot;: 12143,
+    &quot;ahvaz&quot;: 10308,
+    &quot;kermanshah&quot;: 8647,
+    &quot;kerman&quot;: 7839,
+    &quot;qom&quot;: 5840
+  },
+  &quot;location_count&quot;: 2136,
+  &quot;top_locations&quot;: {
+    &quot; تبریز&quot;: 12159,
+    &quot; کرمانشاه&quot;: 8681,
+    &quot; کرمان&quot;: 7952,
+    &quot; ارومیه&quot;: 5737,
+    &quot; بندرعباس&quot;: 5017,
+    &quot; ستارخان&quot;: 5003,
+    &quot; اردبیل&quot;: 4162,
+    &quot; زاهدان&quot;: 4122,
+    &quot; قزوین&quot;: 3938,
+    &quot; اراک&quot;: 3769
+  }
+}</pre>
+<h2>Quality assessment</h2><p>Completeness-only score (100 minus missing-cell percentage): 76.75/100. This is not a composite quality score; validity, uniqueness, consistency and representativeness require context.</p>
+<h2>Audit notes</h2><ul><li>Numeric-looking Persian digits in Model_Year and Mileage were parsed for analytical checks; original raw fields are retained.</li><li>Missing values in several columns may be structurally expected, especially sparse metadata fields.</li><li>Outliers are flagged statistically with IQR and are not automatically removed.</li><li>Dataset comparison uses raw data, exact-deduplicated scenario and price-available subset; no external benchmark dataset was provided.</li></ul></html>
