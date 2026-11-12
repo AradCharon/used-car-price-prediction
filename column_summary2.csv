@@ -1,0 +1,10 @@
+﻿Column_Name,Data_Type,Non_Null_Count,Null_Count
+carID,int64,2695,0
+name,object,2695,0
+model,object,2695,0
+year,int64,2695,0
+city,object,2695,0
+km,int64,2695,0
+condition,object,2695,0
+color,object,2695,0
+price,int64,2695,0
