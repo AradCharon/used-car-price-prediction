@@ -1,0 +1,4 @@
+﻿dataset_variant,rows,columns,missing_cells,exact_duplicates,price_nonmissing_rows
+Raw dataset,406923,19,1797838,74,393827
+After exact duplicate removal (audit scenario),406849,19,1797411,0,393792
+Rows with non-missing Price (analysis subset),393827,19,1710616,35,393827
